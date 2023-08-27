@@ -1,1 +1,3 @@
 nbs/data
+.env
+.DS_Store

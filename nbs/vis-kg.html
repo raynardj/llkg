@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Knowledge Graph Visualization</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <style>
+        circle {
+            stroke: #fff;
+            stroke-width: 1.5px;
+        }
+
+        text {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+        }
+
+        line {
+            stroke: #999;
+            stroke-opacity: 0.6;
+        }
+    </style>
+</head>
+
+<body>
+    <svg width="1000" height="800"></svg>
+
+    <script>
+        // Your knowledge graph data
+        const graph = {
+            'nodes': [{
+                'ntype': 'diagnosis',
+                'name': 'Lymphovascular Invasion (LVI)',
+                'id': 3
+            },
+            { 'ntype': 'diagnosis', 'name': 'Lymph Node Metastasis (LNM)', 'id': 4 },
+            {
+                'ntype': 'diagnosis',
+                'name': 'Superficial Esophageal Squamous Cell Carcinoma (SESCC)',
+                'id': 5
+            },
+            { 'ntype': 'stage', 'name': 'Tumor Size', 'id': 6 },
+            { 'ntype': 'stage', 'name': 'Circumferential Extension', 'id': 7 },
+            { 'ntype': 'stage', 'name': 'Location within Esophagus', 'id': 8 },
+            { 'ntype': 'stage', 'name': 'Depth of Invasion', 'id': 9 },
+            { 'ntype': 'stage', 'name': 'Tumor Differentiation', 'id': 10 },
+            { 'ntype': 'stage', 'name': 'Macroscopic Type', 'id': 11 },
+            { 'ntype': 'stage', 'name': 'Multiple Lesions', 'id': 12 },
+            { 'ntype': 'test', 'name': 'SPSS', 'id': 13 },
+            { 'ntype': 'test', 'name': 'R', 'id': 14 },
+            { 'ntype': 'treatment', 'name': 'Esophagectomy', 'id': 15 },
+            { 'ntype': 'treatment', 'name': 'Lymph Node Dissection', 'id': 16 }],
+            'edges': [{ 'etype': 'associate_with', 'source': 3, 'target': 5 },
+            { 'etype': 'associate_with', 'source': 4, 'target': 5 },
+            { 'etype': 'has_stage', 'source': 5, 'target': 6 },
+            { 'etype': 'has_stage', 'source': 5, 'target': 7 },
+            { 'etype': 'has_stage', 'source': 5, 'target': 8 },
+            { 'etype': 'has_stage', 'source': 5, 'target': 9 },
+            { 'etype': 'has_stage', 'source': 5, 'target': 10 },
+            { 'etype': 'has_stage', 'source': 5, 'target': 11 },
+            { 'etype': 'has_stage', 'source': 5, 'target': 12 },
+            { 'etype': 'diagnose', 'source': 13, 'target': 5 },
+            { 'etype': 'diagnose', 'source': 14, 'target': 5 },
+            { 'etype': 'cure', 'source': 15, 'target': 3 },
+            { 'etype': 'cure', 'source': 15, 'target': 4 },
+            { 'etype': 'cure', 'source': 16, 'target': 3 },
+            { 'etype': 'cure', 'source': 16, 'target': 4 }]
+        }
+
+        const svg = d3.select("svg"),
+            width = +svg.attr("width"),
+            height = +svg.attr("height");
+
+        const simulation = d3.forceSimulation()
+            .force("link", d3.forceLink().id(d => d.id).distance(150))
+            .force("charge", d3.forceManyBody().strength(-500))
+            .force("center", d3.forceCenter(width / 2, height / 2));
+
+        const link = svg.append("g")
+            .attr("stroke", "#999")
+            .attr("stroke-opacity", 0.6)
+            .selectAll("line")
+            .data(graph.edges)
+            .join("line");
+
+        const node = svg.append("g")
+            .attr("class", "nodes")
+            .selectAll("g")
+            .data(graph.nodes)
+            .enter().append("g")
+            .call(drag(simulation));
+
+        node.append("circle")
+            .attr("r", 40)
+            .attr("fill", d => d.ntype === 'diagnosis' ? "#f00" : d.ntype === 'stage' ? "#0f0" : d.ntype === 'test' ? "#00f" : "#ff0");
+
+        node.append("text")
+            .attr("dx", -20)
+            .attr("dy", 5)
+            .text(d => d.name);
+
+        simulation.nodes(graph.nodes)
+            .on("tick", ticked);
+
+        simulation.force("link")
+            .links(graph.edges);
+
+        function ticked() {
+            link
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+
+            node
+                .attr("transform", d => `translate(${d.x}, ${d.y})`);
+        }
+
+        function drag(simulation) {
+            function dragstarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+
+            function dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+
+            function dragended(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+
+            return d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended);
+        }
+    </script>
+
+</body>
+
+</html>
