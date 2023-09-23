@@ -1,0 +1,29 @@
+description: run jupyter notebook
+command: |
+  if sudo docker ps -a | grep llkg-jupyter; then
+    echo "🗡 llkg-jupyter is running, stop it first"
+    sudo docker stop llkg-jupyter
+  fi
+  current=$(pwd)
+  echo "🚀 current directory: $current"
+  sudo docker run -d --rm -p {port}:8888 \
+    --name llkg-jupyter \
+    -v $current/nbs:/home/jovyan/nbs \
+    -v $HOME/.glow:/home/jovyan/.glow \
+    -e JUPYTER_ENABLE_LAB=yes \
+    -e GRANT_SUDO=yes \
+    llkg-jupyter jupyter notebook --ServerApp.allow_origin='*' \
+    --ip=0.0.0.0 --port=8888 --no-browser --allow-root \
+    --NotebookApp.token='{token}'
+  sudo docker logs -f llkg-jupyter
+inputs:
+  port:
+    description: port number
+    type: int
+    default: 8088
+  token:
+    description: token for jupyter notebook
+    type: secret
+    env_var: JUPYTER_TOKEN
+env-files:
+  - .env
