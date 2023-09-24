@@ -1,4 +1,6 @@
 nbs/data
 .env
 .DS_Store
+*/.ipynb_checkpoints/*
+**.log
 **.csv
