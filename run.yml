@@ -10,6 +10,7 @@ command: |
     --name llkg-jupyter \
     -v $current/nbs:/home/jovyan/nbs \
     -v $HOME/.glow:/home/jovyan/.glow \
+    -e OPENAI_API_KEY={openai_api_key} \
     -e JUPYTER_ENABLE_LAB=yes \
     -e GRANT_SUDO=yes \
     llkg-jupyter jupyter notebook --ServerApp.allow_origin='*' \
@@ -25,5 +26,9 @@ inputs:
     description: token for jupyter notebook
     type: secret
     env_var: JUPYTER_TOKEN
+  openai_api_key:
+    description: openai api key
+    type: secret
+    env_var: OPENAI_API_KEY
 env-files:
   - .env
