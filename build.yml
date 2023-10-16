@@ -1,5 +1,5 @@
 command: |
-  sudo docker build -t llkg-jupyter notebook.dockerfile
+  sudo docker build -t llkg-jupyter -f notebook.dockerfile .
 description: |
   this is a glow-cli configration file, pip install glow-cli if you haven't install glow-cli
   build image for jupyter notebook

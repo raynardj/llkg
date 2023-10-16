@@ -8,6 +8,7 @@ command: |
   echo "🚀 current directory: $current"
   sudo docker run -d --rm -p {port}:8888 \
     --name llkg-jupyter \
+    -v $HOME/storage:/home/jovyan/storage \
     -v $current/nbs:/home/jovyan/nbs \
     -v $HOME/.glow:/home/jovyan/.glow \
     -e OPENAI_API_KEY={openai_api_key} \
